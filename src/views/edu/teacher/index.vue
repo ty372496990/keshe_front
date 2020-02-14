@@ -125,11 +125,6 @@ export default {
       });
     },
     removeDataById(id) {
-      // teacher
-      //   .deleteTeacher(id)
-      //   .then()
-      //   .catch();
-
       this.$confirm("此操作将删除该讲师信息, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",

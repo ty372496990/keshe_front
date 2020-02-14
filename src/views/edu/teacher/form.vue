@@ -25,7 +25,30 @@
       </el-form-item>
 
       <!-- 讲师头像：TODO -->
+      <!-- 讲师头像 -->
+      <el-form-item label="讲师头像">
+        <!-- 头衔缩略图 -->
+        <pan-thumb :image="teacher.avatar" />
+        <!-- 文件上传按钮 -->
+        <el-button type="primary" icon="el-icon-upload" @click="imagecropperShow=true">更换头像</el-button>
 
+        <!--
+          v-show：是否显示上传组件
+          :key：类似于id，如果一个页面多个图片上传控件，可以做区分
+          :url：后台上传的url地址
+          @close：关闭上传组件
+        @crop-upload-success：上传成功后的回调-->
+        <image-cropper
+          v-show="imagecropperShow"
+          :width="300"
+          :height="300"
+          :key="imagecropperKey"
+          :url="'http://localhost:8001/school_eduservice/oss/upload'"
+          field="file"
+          @close="close"
+          @crop-upload-success="cropSuccess"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button :disabled="saveBtnDisabled" type="primary" @click="saveOrUpdate">保存</el-button>
       </el-form-item>
@@ -36,7 +59,11 @@
 
 <script>
 import teacherApi from "@/api/teacher";
+import ImageCropper from '@/components/ImageCropper'
+import PanThumb from '@/components/PanThumb'
 export default {
+  //声明要使用的组件
+  components: {ImageCropper, PanThumb},
   data() {
     return {
       teacher: {
@@ -47,7 +74,10 @@ export default {
         intro: "",
         avatar: ""
       },
-      saveBtnDisabled: false
+      // BASE_API: process.env.BASE_API, // 接口API地址
+      saveBtnDisabled: false,
+      imagecropperShow: false, // 是否显示上传组件
+      imagecropperKey: 0 // 上传组件id
     };
   },
   created() {
@@ -64,6 +94,20 @@ export default {
       } else {
         this.updateTeacher();
       }
+    },
+    cropSuccess(data) {
+      console.log(data);
+      this.imagecropperShow = false;
+      this.teacher.avatar = data.imgurl;
+      // 上传成功后，重新打开上传组件时初始化组件，否则显示上一次的上传结果
+      this.imagecropperKey = this.imagecropperKey + 1;
+    },
+
+    // 关闭上传组件
+    close() {
+      this.imagecropperShow = false;
+      // 上传失败后，重新打开上传组件时初始化组件，否则显示上一次的上传结果
+      this.imagecropperKey = this.imagecropperKey + 1;
     },
     //根据id查询
     getTeacherByid(id) {
