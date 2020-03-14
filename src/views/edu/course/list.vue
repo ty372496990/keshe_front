@@ -165,11 +165,11 @@ export default {
       })
         .then(() => {
           course.deleteCourse(id);
-          this.fetchData();
           this.$message({
             type: "success",
             message: "删除成功!"
           });
+          this.fetchData();
         })
         .catch(response => {
           if (response === "cancel") {
@@ -190,6 +190,7 @@ export default {
       console.log("加载列表");
       // 当点击分页组件的切换按钮的时候，会传输一个当前页码的参数page
       // 解决分页无效问题
+      console.log(page)
       this.page = page;
       this.listLoading = true;
       course

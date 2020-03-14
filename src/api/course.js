@@ -67,5 +67,26 @@ export default {
       //传递对象，如果传递的是Json数据，使用data
       //如果不是json，则用params
     })
+  },
+  publishCourse(id) {
+    return request({
+      //后台Controller里面的路径
+      url: '/school_eduservice/edu-course/publishCourse/'+id,
+      method: 'post',
+      //传递对象，如果传递的是Json数据，使用data
+      //如果不是json，则用params
+    })
+  },
+  getUserPage(page,limit) {
+    return request({
+      url: `/userservice/ucenter-member/${page}/${limit}`,
+      method: 'get',
+    })
+  },
+  deleteUserById(id) {
+    return request({
+      url: `/userservice/ucenter-member/removeUserById/${id}`,
+      method: 'delete'
+    })
   }
 };

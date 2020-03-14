@@ -29,5 +29,11 @@ export default {
       url: `/school_eduservice/edu-video/deleteVideo/`+id,
       method: 'delete'
     })
+  },
+  removeVideoById(id) {
+    return request({
+      url: `/school_videoservice/video/` + id,
+      method: 'delete'
+    })
   }
 }

@@ -39,7 +39,28 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="上传视频">
-          <!-- TODO -->
+          <el-upload
+            :on-success="handleVodUploadSuccess"
+            :on-remove="handleVodRemove"
+            :before-remove="beforeVodRemove"
+            :on-exceed="handleUploadExceed"
+            :file-list="fileList"
+            :action="'http://localhost:9001/school_videoservice/video/upload'"
+            :limit="1"
+            class="upload-demo"
+          >
+            <el-button size="small" type="primary">上传视频</el-button>
+            <el-tooltip placement="right-end">
+              <div slot="content">
+                最大支持1G，
+                <br />支持3GP、ASF、AVI、DAT、DV、FLV、F4V、
+                <br />GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、
+                <br />MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、
+                <br />SWF、TS、VOB、WMV、WEBM 等视频格式上传
+              </div>
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -93,7 +114,7 @@ export default {
       chapterNestedList: [], // 章节嵌套视频列表
       dialogChapterFormVisible: false, //是否显示章节表单
       dialogVideoFormVisible: false, //是否显示小节表单
-      chapterId: '', // 课时所在的章节id
+      chapterId: "", // 课时所在的章节id
       chapter: {
         // 章节对象
         title: "",
@@ -105,14 +126,42 @@ export default {
         title: "",
         sort: 0,
         free: 0,
-        videoSourceId: ""
-      }
+        videoSourceId: "",
+        videoOriginalName: ""
+      },
+      fileList: [] //上传文件列表
     };
   },
   created() {
     this.init();
   },
   methods: {
+    //删除视频之前进行提示
+    beforeVodRemove(file, fileList) {
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    //删除视频操作
+    handleVodRemove(file, fileList) {
+      console.log(file);
+      video.removeVideoById(this.video.videoSourceId).then(response => {
+        this.video.videoSourceId = "";
+        this.video.videoOriginalName = "";
+        this.fileList = [];
+        this.$message({
+          type: "success",
+          message: response.message
+        });
+      });
+    },
+    //成功回调
+    handleVodUploadSuccess(response, file, fileList) {
+      this.video.videoSourceId = response.data.videoID;
+      this.video.videoOriginalName = file.name;
+    },
+    //视图上传多于一个视频
+    handleUploadExceed(files, fileList) {
+      this.$message.warning("想要重新上传视频，请先删除已上传的视频");
+    },
     removeVideo(videoId) {
       this.$confirm("此操作将永久删除该记录, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -144,11 +193,13 @@ export default {
       this.dialogVideoFormVisible = true;
       video.getVideoInfoById(videoId).then(response => {
         this.video = response.data.eduVideo;
+        this.fileList = [{'name': this.video.videoOriginalName}]
       });
     },
     openVideo(chapterId) {
       this.dialogVideoFormVisible = true;
       this.chapterId = chapterId;
+      (this.video.title = ""), (this.video.sort = 0), (this.fileList = []);
     },
     //打开添加修改对话框时的初始化
     openAddChapter() {
@@ -181,10 +232,10 @@ export default {
       this.$router.push({ path: "/course/info/" + this.id });
     },
     next() {
-      this.$router.push({ path: "/course/publish/"+ this.id});
+      this.$router.push({ path: "/course/publish/" + this.id });
     },
     saveOrUpdateVideo() {
-      this.saveVideoBtnDisabled = true
+      this.saveVideoBtnDisabled = true;
       if (!this.video.id) {
         this.saveDataVideo();
       } else {

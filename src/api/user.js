@@ -12,7 +12,9 @@ export function getInfo(token) {
   return request({
     url: '/school_eduservice/edu-teacher/info',
     method: 'get',
-    params: { token }
+    params: {
+      token
+    }
   })
 }
 
@@ -22,3 +24,11 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function getUserPage(page,limit) {
+  return request({
+    url: `/userservice/ucenter-member/${page}/${limit}`,
+    method: 'get',
+  })
+}
+
